@@ -11,34 +11,31 @@ us_temps = df[df['Country'] == 'United States']
 # Clean and prepare the data
 us_temps['dt'] = pd.to_datetime(us_temps['dt'])
 us_temps.set_index('dt', inplace=True)
-# Fill missing values using forward fill
-us_temps['AverageTemperature'].fillna(method='ffill', inplace=True)
-# Data is inaccurate before 1820, so we will filter it out
-us_temps = us_temps[us_temps.index.year > 1820]
+us_temps['AverageTemperature'].fillna(method='ffill', inplace=True) # Fill missing values using forward fill
+us_temps = us_temps[us_temps.index.year > 1820] # Data is inaccurate before 1820, so we will filter it out
 yearly_average_temps = us_temps['AverageTemperature'].resample('A').mean()
 # Calculate the lower and upper bounds for the uncertainty
 lower_bound = yearly_average_temps - us_temps['AverageTemperatureUncertainty'].resample('A').mean()
 upper_bound = yearly_average_temps + us_temps['AverageTemperatureUncertainty'].resample('A').mean()
 
-
-# Analyze the data
-X = yearly_average_temps.index.year.values.reshape(-1, 1)  # Input: Year
-y = yearly_average_temps.values.reshape(-1, 1)  # Output: Yearly Average Temperature
-# Create a LinearRegression object
+# Fit a linear regression model to the data
+future_periods = 50
+X = np.arange(len(yearly_average_temps)).reshape(-1, 1)
+y = yearly_average_temps.values
 model = LinearRegression()
-# Fit the model to your data
-model.fit(X, y)
-
-# Make predictions
-predictions = model.predict(X)
-
+model.fit(X, y) # Train the model
+y_pred = model.predict(X) # Fit line to existing data
+X_future = np.arange(len(yearly_average_temps), len(yearly_average_temps) + future_periods).reshape(-1, 1)
+y_future_pred = model.predict(X_future) # Predict for future periods
 
 # Plot the data
 plt.figure(figsize=(10,5))
-#plt.plot(yearly_average_temps, label='Yearly Average Temperature')
-plt.plot(X, y, label='Yearly Average Temperature')
-plt.plot(X, predictions, color='red', label='Linear Regression')
-plt.fill_between(yearly_average_temps.index, lower_bound, upper_bound, color='b', alpha=.1)
+plt.grid(True)
+plt.xlim([yearly_average_temps.index[0], pd.date_range(yearly_average_temps.index[-1], periods=future_periods+10, freq='A')[-1]])
+plt.plot(yearly_average_temps, label='Yearly Average Temperature') # Plot the data
+plt.plot(yearly_average_temps.index, y_pred, label='Linear Regression', linestyle='--', color='r') # Plot the linear regression line
+plt.plot(pd.date_range(yearly_average_temps.index[-1], periods=future_periods, freq='A'), y_future_pred, label='Future Predictions', linestyle='--', color='g') # Plot the future predictions
+plt.fill_between(yearly_average_temps.index, lower_bound, upper_bound, color='b', alpha=.1, label='Uncertainty') # Plot the uncertainty
 plt.title('US Average Temperatures Over Time (Yearly Average with Linear Regression)')
 plt.xlabel('Year')
 plt.ylabel('Average Yearly Temperature')
@@ -46,4 +43,7 @@ plt.legend()
 plt.show()
 
 # TODO:
-# - Plot all years on the same graph
+# 1. Check for Linearity
+# 2. Check for Independence
+# 3. Check for Homoscedasticity
+# 4. Check for Normality
