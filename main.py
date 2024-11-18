@@ -25,25 +25,24 @@ y = yearly_average_temps.values
 model = LinearRegression()
 model.fit(X, y) # Train the model
 y_pred = model.predict(X) # Fit line to existing data
+
+# Predict future values
 X_future = np.arange(len(yearly_average_temps), len(yearly_average_temps) + future_periods).reshape(-1, 1)
 y_future_pred = model.predict(X_future) # Predict for future periods
 
+# Generate future dates for plotting
+future_dates = pd.date_range(yearly_average_temps.index[-1] + pd.DateOffset(years=1), periods=future_periods, freq='A')
+
 # Plot the data
-plt.figure(figsize=(10,5))
+plt.figure(figsize=(12, 6))
 plt.grid(True)
-plt.xlim([yearly_average_temps.index[0], pd.date_range(yearly_average_temps.index[-1], periods=future_periods+10, freq='A')[-1]])
-plt.plot(yearly_average_temps, label='Yearly Average Temperature') # Plot the data
+plt.plot(yearly_average_temps.index, yearly_average_temps, label='Yearly Average Temperature', color='b') # Plot the data
 plt.plot(yearly_average_temps.index, y_pred, label='Linear Regression', linestyle='--', color='r') # Plot the linear regression line
-plt.plot(pd.date_range(yearly_average_temps.index[-1], periods=future_periods, freq='A'), y_future_pred, label='Future Predictions', linestyle='--', color='g') # Plot the future predictions
+plt.plot(future_dates, y_future_pred, label='Future Predictions', linestyle='--', color='g') # Plot the future predictions
 plt.fill_between(yearly_average_temps.index, lower_bound, upper_bound, color='b', alpha=.1, label='Uncertainty') # Plot the uncertainty
+
 plt.title('US Average Temperatures Over Time (Yearly Average with Linear Regression)')
 plt.xlabel('Year')
 plt.ylabel('Average Yearly Temperature')
 plt.legend()
 plt.show()
-
-# TODO:
-# 1. Check for Linearity
-# 2. Check for Independence
-# 3. Check for Homoscedasticity
-# 4. Check for Normality
