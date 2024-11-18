@@ -46,3 +46,19 @@ plt.xlabel('Year')
 plt.ylabel('Average Yearly Temperature')
 plt.legend()
 plt.show()
+
+# Suggestions for TODOs:
+# 1. Check for Linearity:
+#    - Plot a scatter plot of the original data against time to visually inspect linearity.
+#    - Consider using statistical tests like the Durbin-Watson test to further assess linearity.
+#
+# 2. Check for Independence:
+#    - You could plot residuals and look for patterns. If there's a pattern, it indicates correlation between the residuals.
+#
+# 3. Check for Homoscedasticity:
+#    - Plot the residuals against the predicted values to see if the variance is constant.
+#    - If the variance appears to fan out or in, consider transforming the data or using different models.
+#
+# 4. Check for Normality:
+#    - Plot a histogram of residuals to visually check if they follow a normal distribution.
+#    - Consider using statistical tests like the Shapiro-Wilk test to verify normality.
